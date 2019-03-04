@@ -1,24 +1,30 @@
 #!/bin/sh
-#Author: Weiho@破晓团队
-#Blog  : www.weiho.xyz 
-#Email : H4x0er@SecBug.Org 
-#Github: https://github.com/zhaoweiho
-#Date  : 2018-12-25
-#Environment: CentOS7.2
-#Gratitude: k4n5ha0/p1r06u3/Sven/Null/c00lman/kafka/JK
-#deploy single opencanary_web_server
+# Author: Weiho@破晓团队
+# Blog  : www.weiho.xyz 
+# Email : H4x0er@SecBug.Org 
+# Github: https://github.com/zhaoweiho
+# Date  : 2018-12-25
+# Environment: CentOS7.2
+# Gratitude: k4n5ha0/p1r06u3/Sven/Null/c00lman/kafka/JK
+# deploy single opencanary_web_server
 #
 # This script is meant for quick & easy install via:
-#   'curl -O https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_agent.sh'
+#   'curl -O https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_agent.sh'
 #    or
-#   'wget --no-check-certificate https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_agent.sh'
+#   'wget --no-check-certificate https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_agent.sh'
 #
-#    chmod o+x install_opcanary_agent.sh
+#    chmod +x install_opcanary_agent.sh
 #    bash install_opcanary_agent.sh
 #
 #
-#ip=192.168.1.100
-#ip=`ip add | grep -w inet | grep -v "127.0.0.1"| awk -F '[ /]+' '{print $3}'`
+# ip=192.168.1.100
+# ip=`ip add | grep -w inet | grep -v "127.0.0.1"| awk -F '[ /]+' '{print $3}'`
+
+
+# Centos 7 Docker support
+# Env: docker pull centos:7
+yum -y install sudo initscripts rsyslog rsyslog-mysql logrotate
+
 netcard_num=`ls /sys/class/net/ | grep -v lo | wc -l`
 
 
@@ -100,7 +106,7 @@ ntpdate cn.pool.ntp.org
 echo "###########正在下载opencanary_agent#########"
 opencanary_folder="/usr/local/src/opencanary"
 if [ ! -d $opencanary_folder ]; then
-    git clone https://github.com/p1r06u3/opencanary.git /usr/local/src/opencanary
+    git clone https://github.com/struce/opencanary.git /usr/local/src/opencanary
 	configure_agent_name=`sed -n "2p"  /usr/local/src/opencanary/opencanary/data/settings.json | awk -F '["]+' '{print $4}'`
     configure_server_ip=`sed -n "3p"  /usr/local/src/opencanary/opencanary/data/settings.json | awk -F '["]+' '{print $4}'`
 	configure_ip=`sed -n "4p"  /usr/local/src/opencanary/opencanary/data/settings.json | awk -F '["]+' '{print $4}'`
@@ -162,5 +168,5 @@ fi
 echo "安装opencanary_agent成功.opencanary支持以下协议"
 echo "ftp登录尝试/http访问请求/http登录请求/ssh建立连接"
 echo "ssh远程版本发送/ssh登录尝试/telnet登录尝试/mysql登录尝试"
-echo "建议使用iptables对相关端口进行管理,详细请参考https://github.com/p1r06u3/opencanary_web"
+echo "建议使用iptables对相关端口进行管理,详细请参考https://github.com/struce/opencanary_web"
 echo "请登陆至http://$opencanary_web_server_ip 进行管理."
