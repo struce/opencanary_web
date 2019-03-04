@@ -1,7 +1,7 @@
-tornado
-PyJWT
-python-jwt
-sqlalchemy
-pymysql
-configparser
-apscheduler
+tornado==5.1
+PyJWT==1.7.1
+python-jwt==3.2.4
+sqlalchemy==1.2.18
+pymysql==0.9.3
+configparser==3.7.3
+apscheduler==3.5.3
