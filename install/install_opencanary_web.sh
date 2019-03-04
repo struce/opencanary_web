@@ -9,9 +9,9 @@
 # deploy single opencanary_web_server
 #
 # This script is meant for quick & easy install via:
-#   'curl -O https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_web.sh'
+#   'curl -O https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_web.sh'
 #    or
-#   'wget --no-check-certificate https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_web.sh'
+#   'wget --no-check-certificate https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_web.sh'
 #
 #    chmod o+x install_opencanary_web.sh
 #    bash install_opencanary_web.sh
@@ -83,7 +83,7 @@ fi
 opencanary_web_folder="/usr/local/src/opencanary_web"
 src_root="/usr/local/src"
 
-if [ ! -d $src_root]; then
+if [ ! -d $src_root ]; then
     mkdir $src_root
 fi
 
