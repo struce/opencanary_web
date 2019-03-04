@@ -1,12 +1,12 @@
 #!/bin/sh
-#Author: Weiho@破晓团队
-#Blog  : www.weiho.xyz 
-#Email : H4x0er@SecBug.Org 
-#Github: https://github.com/zhaoweiho
-#Date  : 2019-01-13
-#Environment: CentOS7.2
-#Gratitude: k4n5ha0/p1r06u3/Sven/Null/c00lman/kafka/JK/Mayter
-#deploy single opencanary_web_server
+# Author: Weiho@破晓团队
+# Blog  : www.weiho.xyz 
+# Email : H4x0er@SecBug.Org 
+# Github: https://github.com/zhaoweiho
+# Date  : 2019-01-13
+# Environment: CentOS7.2
+# Gratitude: k4n5ha0/p1r06u3/Sven/Null/c00lman/kafka/JK/Mayter
+# deploy single opencanary_web_server
 #
 # This script is meant for quick & easy install via:
 #   'curl -O https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_web.sh'
@@ -17,6 +17,19 @@
 #    bash install_opencanary_web.sh
 #
 
+echo "#########安装依赖包############"
+a=`cat /etc/redhat-release |awk '{print $4}'`
+if [ "$a" \< "7.0" ];then
+	echo "系统版本太低，无法使用"
+	exit 0
+fi
+
+
+yum install -y curl wget
+wget -O /etc/yum.repos.d/CentOS-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+yum clean all
+yum makecache
+yum -y install initscripts ntpdate epel-release python-devel git net-tools
 
 echo "###########正在初始化环境#########"
 #getip=192.168.1.100
@@ -25,36 +38,26 @@ getip=`ip add | grep -w inet | grep -v "127.0.0.1"| awk -F '[ /]+' '{print $3}'`
 #开启alias功能
 shopt -s expand_aliases
 
-echo "服务端IP地址:$getip"
-read -p "IP是否正确(y/n):" choice
-if [ $choice = n ];then
-	echo "######请手动配置IP######"
-	read -p "请输入本机IP:" getip
-fi
+# echo "服务端IP地址:$getip"
+# read -p "IP是否正确(y/n):" choice
+# if [ $choice = n ];then
+# 	echo "######请手动配置IP######"
+# 	read -p "请输入本机IP:" getip
+# fi
 
-echo "#########安装依赖包############"
-a=`cat /etc/redhat-release |awk '{print $4}'`
-if [ "$a" \< "7.0" ];then
-	echo "系统版本太低，无法使用"
-	exit 0
-fi
-
-yum install -y curl wget
-wget -O /etc/yum.repos.d/CentOS-7.repo http://mirrors.aliyun.com/repo/Centos-7.repo
-yum clean all
-yum makecache
-yum install -y ntpdate epel-release python-devel git net-tools
 
 echo "#############正在关闭SELINUX#########"
-setenforce 0
-selinux_on=`sed -n '7p' /etc/selinux/config | awk -F '=' '{print $2}'`
-if [ "$selinux_on" = "disabled" ]; then
-  echo "SELINUX=disabled"
-   else
-    echo "已修改SELINUX=disabled"
-    sed -i "s/$selinux_on/disabled/g" /etc/selinux/config
+if [ -f "/etc/selinux/config" ]; then
+    setenforce 0
+    # selinux_on=`sed -n '7p' /etc/selinux/config | awk -F '=' '{print $2}'`
+    selinux_on=awk -F'=' '$1 ~ /^SELINUX/ && $1 !~ /SELINUXTYPE/ {print $2}'
+    if [ "$selinux_on" = "disabled" ]; then
+        echo "SELINUX=disabled"
+    else
+        echo "已修改SELINUX=disabled"
+        sed -i "s/$selinux_on/disabled/g" /etc/selinux/config
+    fi
 fi
-
 echo "##################正在更新系统时间##################"
 ntpdate cn.pool.ntp.org
 
@@ -71,34 +74,41 @@ fi
 PIP_FILE=/usr/bin/pip
 if [ ! -s $PIP_FILE ]; then
     curl https://bootstrap.pypa.io/get-pip.py | python
-    python -m pip install --upgrade pip
+    python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --upgrade pip
     echo "################pip is installed############"
-    else
+else
     echo "################pip install error############"
 fi
 
 opencanary_web_folder="/usr/local/src/opencanary_web"
+src_root="/usr/local/src"
+
+if [ ! -d $src_root]; then
+    mkdir $src_root
+fi
+
+
 if [ ! -d $opencanary_web_folder ]; then
     echo "############正在同步最新版本opencanary_web,并且安装第三方依赖包##########"
-    git clone https://github.com/p1r06u3/opencanary_web.git /usr/local/src/opencanary_web
+    git clone https://github.com/struce/opencanary_web.git /usr/local/src/opencanary_web
     cd /usr/local/src/opencanary_web/
-    pip install -r requirements.txt
-    else
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+else
     echo "############已下载opencanary_web,正在安装第三方依赖包#########"
     cd /usr/local/src/opencanary_web/
-    pip install -r requirements.txt
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 fi
 
 function MYSQL() {
-rpm -qa|grep mariadb-server > /dev/null
-if [ $? = '1' ]; then
-	echo "######install mysql########"
-    yum install -y mariadb-server
-    systemctl enable mariadb
-    systemctl daemon-reload
+    rpm -qa|grep mariadb-server > /dev/null
+    if [ $? = '1' ]; then
+        echo "######install mysql########"
+        yum install -y mariadb-server
+        systemctl enable mariadb
+        systemctl daemon-reload
     else
-	echo "######mysql is installed########"
-fi
+        echo "######mysql is installed########"
+    fi
 }
 MYSQL
 
@@ -111,50 +121,50 @@ else
 fi
 #Configure mysql PassWord:Weiho@2019,Import honeypot.sql
 function Import_mysql(){
-opencanary_web_mysql_username=`sed -n '18p' /usr/local/src/opencanary_web/dbs/initdb.py |awk '{print $3}'`
-opencanary_web_mysql_password=`sed -n '19p' /usr/local/src/opencanary_web/dbs/initdb.py |awk '{print $3}'`
-huanchengzijidemima="'huanchengzijidemima'"
-if [ "$opencanary_web_mysql_password" = "$huanchengzijidemima" ]; then    
-    mysql -u root -e "
-     create user 'honeypot'@'localhost' identified by 'Weiho@2019';
-     create database honeypot;
-     grant all on honeypot.* to 'honeypot'@'localhost';
-     flush privileges;
-     use honeypot;
-     source /usr/local/src/opencanary_web/honeypot.sql;"
-sed -i "s/$opencanary_web_mysql_username/'honeypot'/g" /usr/local/src/opencanary_web/dbs/initdb.py
-sed -i "s/$opencanary_web_mysql_password/'Weiho@2019'/g" /usr/local/src/opencanary_web/dbs/initdb.py
-    echo "######## 已创建honeypot@localhost密码Weiho@2019 #########"
-    echo "######## 初始化导入数据库honeypot.sql #########"
-else
-    echo "########已经修改并导入数据库honeypot.sql#########"
-    fi
+    opencanary_web_mysql_username=`sed -n '18p' /usr/local/src/opencanary_web/dbs/initdb.py |awk '{print $3}'`
+    opencanary_web_mysql_password=`sed -n '19p' /usr/local/src/opencanary_web/dbs/initdb.py |awk '{print $3}'`
+    huanchengzijidemima="'huanchengzijidemima'"
+    if [ "$opencanary_web_mysql_password" = "$huanchengzijidemima" ]; then    
+        mysql -u root -e "
+        create user 'honeypot'@'localhost' identified by 'Weiho@2019';
+        create database honeypot;
+        grant all on honeypot.* to 'honeypot'@'localhost';
+        flush privileges;
+        use honeypot;
+        source /usr/local/src/opencanary_web/honeypot.sql;"
+    sed -i "s/$opencanary_web_mysql_username/'honeypot'/g" /usr/local/src/opencanary_web/dbs/initdb.py
+    sed -i "s/$opencanary_web_mysql_password/'Weiho@2019'/g" /usr/local/src/opencanary_web/dbs/initdb.py
+        echo "######## 已创建honeypot@localhost密码Weiho@2019 #########"
+        echo "######## 初始化导入数据库honeypot.sql #########"
+    else
+        echo "########已经修改并导入数据库honeypot.sql#########"
+        fi
 }
 Import_mysql
 
 function NGINX() {
-netstat -anput | grep nginx > /dev/null
-if [ $? = '1' ]; then
-	echo "######install nginx########"
-	rpm -ivh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
-    yum install -y nginx
-else
-	echo "######nginx is installed########"
-fi
+    ss -anput | grep nginx > /dev/null
+    if [ $? = '1' ]; then
+        echo "######install nginx########"
+        rpm -ivh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        yum install -y nginx
+    else
+        echo "######nginx is installed########"
+    fi
 }
 NGINX
 
 SUPERVISOR_FILE=/usr/bin/supervisorctl
 SUPERVISOR_CONF=/etc/supervisord.conf
 function SUPERVISOR() {
-if [ ! -s $SUPERVISOR_FILE ]; then
-	echo "######install supervisor########"
-    pip install supervisor
-    echo_supervisord_conf > ${SUPERVISOR_CONF}
-    mkdir /etc/supervisord.d
-    echo "[include]" >> ${SUPERVISOR_CONF}
-    echo "files = supervisord.d/*.ini" >> ${SUPERVISOR_CONF}
-    cat > /usr/lib/systemd/system/supervisord.service<<EOF
+    if [ ! -s $SUPERVISOR_FILE ]; then
+        echo "######install supervisor########"
+        pip install -i https://pypi.tuna.tsinghua.edu.cn/simple supervisor
+        echo_supervisord_conf > ${SUPERVISOR_CONF}
+        mkdir /etc/supervisord.d
+        echo "[include]" >> ${SUPERVISOR_CONF}
+        echo "files = supervisord.d/*.ini" >> ${SUPERVISOR_CONF}
+        cat > /usr/lib/systemd/system/supervisord.service << EOF
 [Unit]
 Description=Supervisor daemon
 
@@ -172,16 +182,16 @@ RestartSec=42s
 WantedBy=multi-user.target
 EOF
     else
-	echo "######supervisor is installed########"
-fi
+        echo "######supervisor is installed########"
+    fi
 }
 SUPERVISOR
 
 function SUPERVISOR_CONFIGURE() {
-SUPERVISOR_CONFIGURE_DOTORNADO_FILE=/etc/supervisord.d/conf.dtornado.ini
-if [ ! -s $SUPERVISOR_CONFIGURE_DOTORNADO_FILE ]; then
-    echo "################正在写入supervisord配置conf.dtornado.ini############"
-    cat > /etc/supervisord.d/conf.dtornado.ini<<EOF
+    SUPERVISOR_CONFIGURE_DOTORNADO_FILE=/etc/supervisord.d/conf.dtornado.ini
+    if [ ! -s $SUPERVISOR_CONFIGURE_DOTORNADO_FILE ]; then
+        echo "################正在写入supervisord配置conf.dtornado.ini############"
+        cat > /etc/supervisord.d/conf.dtornado.ini << EOF
 [group:tornadoes]
 programs=tornado-8000,tornado-8001,tornado-8002,tornado-8003
 
@@ -218,8 +228,8 @@ stdout_logfile=/var/log/tornado.log
 loglevel=debug
 EOF
     else
-    echo "################supervisord配置文件conf.dtornado.ini已存在.############"
-fi
+        echo "################supervisord配置文件conf.dtornado.ini已存在.############"
+    fi
 }
 SUPERVISOR_CONFIGURE
 echo "################正在启动supervisord##############"
@@ -303,9 +313,18 @@ echo "##############正在启动NGINX###############"
 systemctl enable nginx.service
 systemctl restart nginx.service
 echo "##############重新启动NGINX完成###############"
-echo "##############正在关闭防火墙#############"
-systemctl stop firewalld.service
-systemctl disable firewalld
+
+echo "##############检测是否安装防火墙##############"
+
+rpm -qa|grep firewalld >> /dev/null
+if [ $? = '0' ]; then
+    echo "##############正在关闭防火墙#############"
+    systemctl stop firewalld.service
+    systemctl disable firewalld
+else
+    echo "##############防火墙未安装###############"
+fi
+
 clear
 
 #配置蜜罐告警邮件收发
@@ -322,44 +341,44 @@ get_mail_postfix=`sed -n '33p' /usr/local/src/opencanary_web/application.py |cut
 echo "############正在配置opencanary蜜罐邮件收发###########"
 read -p "smtp服务器地址:" mail_host
 if [ "$mail_host" = "" ]; then
-  echo "$get_mail_host"
+    echo "$get_mail_host"
    else
   sed -i "s/smtp.163.com/$mail_host/g" /usr/local/src/opencanary_web/application.py
 fi
 read -p "邮箱用户名:" mail_user
 if [ "$mail_user" = "" ]; then
-  echo "$get_mail_user"
-   else
-  sed -i "s/qyfllyj/$mail_user/g" /usr/local/src/opencanary_web/application.py
+    echo "$get_mail_user"
+else
+    sed -i "s/qyfllyj/$mail_user/g" /usr/local/src/opencanary_web/application.py
 fi
 read -p "输入邮箱密码:" mail_pass
 if [ "$mail_pass" = "" ]; then
-  echo "$get_mail_pass"
-   else
-  sed -i "s/opencanary123/$mail_pass/g" /usr/local/src/opencanary_web/application.py
+    echo "$get_mail_pass"
+else
+    sed -i "s/opencanary123/$mail_pass/g" /usr/local/src/opencanary_web/application.py
 fi
 read -p "邮箱后缀名:" mail_postfix
 if [ "$mail_postfix" = "" ]; then
-  echo "$get_mail_postfix"
-   else
-  sed -i "s/163.com/$mail_postfix/g" /usr/local/src/opencanary_web/application.py
+    echo "$get_mail_postfix"
+else
+    sed -i "s/163.com/$mail_postfix/g" /usr/local/src/opencanary_web/application.py
 fi
 echo "############配置已完成,下一步配置收件人邮箱###########"
 
 get_mail_addressee=`sed -n '2p' /usr/local/src/opencanary_web/util/conf/email.ini | awk '{print $3}'`
 read -p "收件人邮箱:" mail_addressee
 if [ "$mail_addressee" = "" ]; then
-  echo "########配置没有做任何更改,默认收件人邮箱:$get_mail_addressee#######"
-   else
-      sed -i "s/$get_mail_addressee/$mail_addressee/g" /usr/local/src/opencanary_web/util/conf/email.ini
-get_new_mail_addressee=`sed -n '2p' /usr/local/src/opencanary_web/util/conf/email.ini | awk '{print $3}'`
-      echo "##########已更新告警收件邮箱:$get_new_mail_addressee#########"
+    echo "########配置没有做任何更改,默认收件人邮箱:$get_mail_addressee#######"
+else
+    sed -i "s/$get_mail_addressee/$mail_addressee/g" /usr/local/src/opencanary_web/util/conf/email.ini
+    get_new_mail_addressee=`sed -n '2p' /usr/local/src/opencanary_web/util/conf/email.ini | awk '{print $3}'`
+    echo "##########已更新告警收件邮箱:$get_new_mail_addressee#########"
 fi
 
 mail_switch=`sed -n '3p' /usr/local/src/opencanary_web/util/conf/email.ini |awk '{print $3}'`
 if [ "$mail_switch" = "on" ]; then
     echo "#######已开启告警邮件开关########"
-    else
+else
     echo "#######正在开启告警邮件开关##########"
     sed -i "s/switch = off/switch = on/g" /usr/local/src/opencanary_web/util/conf/email.ini
     echo "#######开启告警邮件成功##########"
