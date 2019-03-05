@@ -85,7 +85,7 @@ delete from OpencanaryLog where white=2;
     supervisorctl stop tornadoes:
     cd /usr/local/src/
     rm -rf opencanary_web/
-    git clone https://github.com/p1r06u3/opencanary_web.git
+    git clone https://github.com/struce/opencanary_web.git
     cd opencanary_web/
     ```
 2. 修改配置文件
@@ -158,10 +158,10 @@ iptables -t mangle -F
 
 安装新客户端
 ```
-curl -O https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_agent.sh
+curl -O https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_agent.sh
 bash install_opencanary_agent.sh
 ```
 
 ## 报告问题
 
-使用过程当中出现任何问题，请点击[这里](https://github.com/p1r06u3/opencanary_web/issues/new)反馈
+使用过程当中出现任何问题，请点击[这里](https://github.com/struce/opencanary_web/issues/new)反馈
