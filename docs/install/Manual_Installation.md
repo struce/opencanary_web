@@ -2,13 +2,21 @@
 
 Linux服务器我选择Centos7.1，选7的原因是系统自带的python环境为2.7.x，不用麻烦着去折腾python 2.6和其他一些依赖问题。
 
-首先应该关闭SELINUX:
+首先应该关闭SELINUX
+
+临时关闭SELINUX
+
+```bash
+setenforce 0
+```
+
+永久关闭
 
 vi /etc/selinux/config
 ```
 SELINUX=disabled
 ```
-然后重启服务器，使关闭SELINUX永久生效。
+重启服务器生效。
 
 ### tornado安装
 
@@ -16,12 +24,12 @@ SELINUX=disabled
 
     ```
     cd /usr/local/src/
-    git clone https://github.com/p1r06u3/opencanary_web.git
+    git clone https://github.com/struce/opencanary_web.git
     cd opencanary_web/
     pip install -r requirements.txt
     ```
 
-3. 安装mysql
+2. 安装mysql
 
     在MySQL官网中下载YUM源rpm安装包：http://dev.mysql.com/downloads/repo/yum/
     
@@ -65,7 +73,7 @@ SELINUX=disabled
     identified by 后面单引号内的是你的新密码
     ```
 
-4. 创建mysql数据库和表结构
+3. 创建mysql数据库和表结构
 
     切换到opencanary_web目录
     ```
@@ -85,7 +93,7 @@ SELINUX=disabled
     ```
     UPDATE User SET password='900150983cd24fb0d6963f7d28e17f72' WHERE id=1;
     ```
-5. 修改web数据库连接密码
+4. 修改web数据库连接密码
 
     vi /usr/local/src/opencanary_web/dbs/initdb.py
     ```
@@ -93,7 +101,7 @@ SELINUX=disabled
     ```
     换成自己的mysql密码
 
-6. 单tornado实例启动测试
+5. 单tornado实例启动测试
 
     ```
     python server.py --port=80
@@ -333,7 +341,7 @@ sudo apt-get install -y build-essential libssl-dev libffi-dev python-dev
 
 ```
 cd /usr/local/src/
-git clone https://github.com/p1r06u3/opencanary.git
+git clone https://github.com/struce/opencanary.git
 cd opencanary/
 ```
 
@@ -417,7 +425,7 @@ iptables -t mangle -F
 
 安装新客户端
 ```
-curl -O https://raw.githubusercontent.com/p1r06u3/opencanary_web/master/install/install_opencanary_agent.sh
+curl -O https://raw.githubusercontent.com/struce/opencanary_web/master/install/install_opencanary_web.sh
 bash install_opencanary_agent.sh
 ```
 
