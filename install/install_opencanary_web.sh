@@ -342,8 +342,8 @@ echo "############正在配置opencanary蜜罐邮件收发###########"
 read -p "smtp服务器地址:" mail_host
 if [ "$mail_host" = "" ]; then
     echo "$get_mail_host"
-   else
-  sed -i "s/smtp.163.com/$mail_host/g" /usr/local/src/opencanary_web/application.py
+else
+    sed -i "s/smtp.163.com/$mail_host/g" /usr/local/src/opencanary_web/application.py
 fi
 read -p "邮箱用户名:" mail_user
 if [ "$mail_user" = "" ]; then
