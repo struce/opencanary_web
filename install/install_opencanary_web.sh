@@ -404,7 +404,7 @@ echo "UPDATE User SET password='900150983cd24fb0d6963f7d28e17f72' WHERE id=1;"
 echo "以及修改/usr/local/src/opencanary_web/dbs/initdb.py,DB_USER/DB_PWD字段"
 echo "已经配置成功蜜罐告警邮件,具体配置浏览/usr/local/src/opencanary_web/application.py"
 echo "收件人邮件配置(以及告警开关):/usr/local/src/opencanary_web/util/conf/email.ini"
-echo "更多信息请参考https://github.com/p1r06u3/opencanary_web"
+echo "更多信息请参考https://github.com/struce/opencanary_web"
 ;;
 n*)
 echo "已同步cn.pool.ntp.org时间,已关闭SELINUX和防火墙"
@@ -419,7 +419,7 @@ echo "以及修改/usr/local/src/opencanary_web/dbs/initdb.py,DB_USER/DB_PWD字�
 echo "蜜罐告警邮件没有配置成功,请自行决定是否需要配置."
 echo "蜜罐告警具体配置(发件人)浏览/usr/local/src/opencanary_web/application.py"
 echo "收件人邮件配置(以及告警开关):/usr/local/src/opencanary_web/util/conf/email.ini"
-echo "更多信息请参考https://github.com/p1r06u3/opencanary_web"
+echo "更多信息请参考https://github.com/struce/opencanary_web"
 ;;
 *)
 echo "已同步cn.pool.ntp.org时间,已关闭SELINUX和防火墙"
@@ -434,6 +434,6 @@ echo "以及修改/usr/local/src/opencanary_web/dbs/initdb.py,DB_USER/DB_PWD字�
 echo "蜜罐告警邮件没有配置成功,请自行决定是否需要配置."
 echo "蜜罐告警具体配置(发件人)浏览/usr/local/src/opencanary_web/application.py"
 echo "收件人邮件配置(以及告警开关):/usr/local/src/opencanary_web/util/conf/email.ini"
-echo "更多信息请参考https://github.com/p1r06u3/opencanary_web"
+echo "更多信息请参考https://github.com/struce/opencanary_web"
 esac
 exit 0
